@@ -460,19 +460,20 @@ export class Book {
             copiedPages.forEach((page) => aggregate.duplex.addPage(page));
           }
         }
+        const baseName = this.getOutputBaseName();
         if (aggregate.front) {
           await aggregate.front.save().then((pdfBytes) => {
-            this.zip.file(`${this.filename}_typeset_side1.pdf`, pdfBytes);
+            this.zip.file(`${baseName}_side1.pdf`, pdfBytes);
           });
         }
         if (aggregate.back) {
           await aggregate.back.save().then((pdfBytes) => {
-            this.zip.file(`${this.filename}_typeset_side2.pdf`, pdfBytes);
+            this.zip.file(`${baseName}_side2.pdf`, pdfBytes);
           });
         }
         if (aggregate.duplex) {
           await aggregate.duplex.save().then((pdfBytes) => {
-            this.zip.file(`${this.filename}_typeset.pdf`, pdfBytes);
+            this.zip.file(`${baseName}.pdf`, pdfBytes);
           });
         }
       };
@@ -698,15 +699,24 @@ export class Book {
     this.zip.file('settings.txt', settings);
   }
 
-  saveZip() {
-    console.log('Saving zip... ');
-    this.bundleSettings();
+  /**
+   * Builds the shared base name (pdf name, signature count, page count) used for
+   * both the downloaded zip and the aggregated/typeset output files.
+   * @returns {string}
+   */
+  getOutputBaseName() {
     const sigCount = this.book.sigconfig.length;
     const pageCount = this.book.pagelistdetails.reduce((acc, list) => {
       list.forEach((sublist) => (acc += sublist.length ? sublist.length : 1));
       return acc;
     }, 0);
-    const outputName = `${this.filename}-${sigCount}signs-${pageCount}pgs-SSBinding.zip`;
+    return `${this.filename}-${sigCount}signs-${pageCount}pgs-SSBinding`;
+  }
+
+  saveZip() {
+    console.log('Saving zip... ');
+    this.bundleSettings();
+    const outputName = `${this.getOutputBaseName()}.zip`;
     return this.zip.generateAsync({ type: 'blob' }).then((blob) => {
       console.log('  calling saveAs on ', outputName);
       saveAs(blob, outputName);
