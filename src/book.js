@@ -700,17 +700,15 @@ export class Book {
   }
 
   /**
-   * Builds the shared base name (pdf name, signature count, page count) used for
-   * both the downloaded zip and the aggregated/typeset output files.
+   * Builds the shared base name (pdf name, signature count, per-signature page
+   * arrangement) used for both the downloaded zip and the aggregated/typeset
+   * output files.
    * @returns {string}
    */
   getOutputBaseName() {
     const sigCount = this.book.sigconfig.length;
-    const pageCount = this.book.pagelistdetails.reduce((acc, list) => {
-      list.forEach((sublist) => (acc += sublist.length ? sublist.length : 1));
-      return acc;
-    }, 0);
-    return `${this.filename}-${sigCount}signs-${pageCount}pgs-SSBinding`;
+    const sigArrangement = this.book.sigconfig.join('_');
+    return `${this.filename}-${sigCount}signs-${sigArrangement}pgs-SSBinding`;
   }
 
   saveZip() {
