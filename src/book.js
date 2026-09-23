@@ -701,9 +701,15 @@ export class Book {
   saveZip() {
     console.log('Saving zip... ');
     this.bundleSettings();
+    const sigCount = this.book.sigconfig.length;
+    const pageCount = this.book.pagelistdetails.reduce((acc, list) => {
+      list.forEach((sublist) => (acc += sublist.length ? sublist.length : 1));
+      return acc;
+    }, 0);
+    const outputName = `${this.filename}-${sigCount}signs-${pageCount}pgs-SSBinding.zip`;
     return this.zip.generateAsync({ type: 'blob' }).then((blob) => {
-      console.log('  calling saveAs on ', this.filename);
-      saveAs(blob, `${this.filename}_bookbinder.zip`);
+      console.log('  calling saveAs on ', outputName);
+      saveAs(blob, outputName);
     });
   }
 
