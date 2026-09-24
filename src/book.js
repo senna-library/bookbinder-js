@@ -707,7 +707,8 @@ export class Book {
    */
   getOutputBaseName() {
     const sigCount = this.book.sigconfig.length;
-    const sigArrangement = this.book.sigconfig.join('_');
+    const isUniform = this.book.sigconfig.every((n) => n === this.book.sigconfig[0]);
+    const sigArrangement = isUniform ? this.book.sigconfig[0] : this.book.sigconfig.join('_');
     return `${this.filename}-${sigCount}signs-${sigArrangement}pgs-SSBinding`;
   }
 
